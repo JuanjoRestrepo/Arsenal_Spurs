@@ -36,3 +36,7 @@ dist/
 
 # MacOS
 .DS_Store
+
+
+# Agents
+.agents/
