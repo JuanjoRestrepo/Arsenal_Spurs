@@ -18,6 +18,9 @@ dependencies = [
     "pydantic-settings>=2.2.0",
 ]
 
+[project.scripts]
+predict = "arsenal_spurs_prediction.main:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
