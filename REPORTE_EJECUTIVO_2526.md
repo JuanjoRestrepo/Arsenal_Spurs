@@ -1,4 +1,4 @@
-# Reporte Ejecutivo — Temporada 2025/26
+# Reporte Ejecutivo - Temporada 2025/26
 ### Arsenal & Tottenham Predictive Intelligence Platform
 *Generado por el Dixon-Coles Multi-Liga Engine con Contextual Adjustment Layer*
 
@@ -8,64 +8,65 @@
 
 | Objetivo | Probabilidad |
 |---|:---:|
-| Arsenal — Premier League Title | **83.71%** |
-| Arsenal — CL Final Win *(incl. ET/Penales)* | **47.08%** |
-| Arsenal — Doblete Histórico *(PL + CL)* | **39.41%** |
-| Tottenham — Riesgo de Descenso | **16.92%** |
+| Arsenal - Premier League Title | **83.64%** |
+| Arsenal - CL Final Win *(incl. ET/Penales)* | **48.36%** |
+| Arsenal - Doblete Histórico *(PL + CL)* | **40.45%** |
+| Tottenham - Riesgo de Descenso | **16.91%** |
 
 > [!IMPORTANT]
-> El doblete es el evento más difícil de cuantificar en el fútbol moderno. Una probabilidad del **39.41%** representa uno de los resultados más extraordinarios que un modelo estadístico puede proyectar para un club en la era moderna — comparable a los dobles del Manchester City (2018/19) y Chelsea (2009/10).
+> El doblete es el evento más difícil de cuantificar en el fútbol moderno. Una probabilidad del **40.45%** representa uno de los resultados más extraordinarios que un modelo estadístico puede proyectar para un club en la era moderna - comparable a los dobles del Manchester City (2018/19) y Chelsea (2009/10).
 
 ---
 
 ## CL Final: Arsenal vs Paris Saint-Germain
-### Puskas Arena, Budapest — Sede Neutral
+### Puskas Arena, Budapest - Sede Neutral
 
 | Escenario | Arsenal | Empate | PSG |
 |---|:---:|:---:|:---:|
-| **90 Minutos** | 29.3% | 35.6% | 35.1% |
-| **Incluyendo ET/Penales** | **47.1%** | — | **52.9%** |
+| **90 Minutos** | 30.8% | 35.1% | 34.1% |
+| **Incluyendo ET/Penales** | **48.4%** | - | **51.6%** |
 
 > [!NOTE]
 > La alta probabilidad de empate a 90 minutos (35.6%) es estadísticamente coherente con finales de alta presión donde ambos equipos juegan con cautela táctica. La proyección de ET/Penales asume un reparto 50/50, consistente con la literatura de sports analytics sobre penales en finales (Bar-Eli et al., 2007).
 
 ---
 
-## Motor Contextual — Variables Aplicadas
+## Motor Contextual - Variables Aplicadas
 
-El modelo va más allá de los datos históricos brutos. Para cada equipo en cada competición, se aplican multiplicadores calibrados sobre las tasas esperadas de gol (λ y μ del modelo Dixon-Coles) basados en fatiga, lesiones y motivación.
+El modelo va más allá de los datos históricos brutos. Para cada equipo en cada competición, se aplican multiplicadores calibrados sobre las tasas esperadas de gol (lambda y mu del modelo Dixon-Coles) basados en fatiga, lesiones y motivación.
 
 | Factor Contextual | Arsenal (PL) | Arsenal (CL) | Tottenham (PL) | PSG (CL) |
 |---|:---:|:---:|:---:|:---:|
-| Escala Ataque | 0.931 | 0.989 | 0.920 | 0.989 |
-| Escala Defensa | 0.960 | 0.970 | 0.900 | 0.931 |
-| Bonus Motivación *(log-space)* | +0.040 | +0.060 | +0.080 | +0.070 |
+| Escala Ataque | 0.931 | 0.989 | 0.920 | 1.060 |
+| Escala Defensa | 0.960 | 0.970 | 0.900 | 1.030 |
+| Bonus Motivación *(log-space)* | +0.040 | +0.060 | +0.080 | +0.050 |
 | Penalización Fatiga | 4% | 3% | 0% | 4% |
 
 ### Justificación por Equipo
 
-**Arsenal — Premier League**
-- Fatiga de campaña europea (13 partidos CL) → penalización 4% en sprint metrics (Mohr et al., 2005)
-- Motivación de título compensa parcialmente → bonus +4.1% en expected goals
+**Arsenal - Premier League**
+- Fatiga de campaña europea (13 partidos CL) -> penalización 4% en sprint metrics (Mohr et al., 2005)
+- Motivación de título compensa parcialmente -> bonus +4.1% en expected goals
 - Rotaciones de Arteta mitigan fatiga aguda (Havertz/Trossard cubriendo minutos)
 
-**Arsenal — CL Final**
+**Arsenal - CL Final**
 - Preparación máxima: 3+ semanas dedicadas post-PL para la final
-- Primera final histórica del club → motivación sin precedentes (+6.1%)
+- Primera final histórica del club -> motivación sin precedentes (+6.1%)
 - Fatiga residual de semifinal gestionada con descanso planificado
 
 **Tottenham Hotspur**
-- Sin competición europea → 0% de fatiga por fixture congestion
-- Batalla de supervivencia en descenso → bonus de desesperación +8.3%
-- Organización defensiva débil toda la temporada (GD = -9) → escala defensa 0.90
-- Moral del plantel en mínimos históricos → mayor riesgo de errores bajo presión
+- Sin competición europea -> 0% de fatiga por fixture congestion
+- Batalla de supervivencia en descenso -> bonus de desesperación +8.3%
+- Organización defensiva débil toda la temporada (GD = -9) -> escala defensa 0.90
+- Moral del plantel en mínimos históricos -> mayor riesgo de errores bajo presión
 
 **Paris Saint-Germain**
-- Desesperados por primer título CL tras finales perdidas (2020 vs Bayern)
-- Tridente Dembélé/Barcola/Ramos en forma → escala ataque 0.989
-- Ligue 1 asegurada con antelación → concentración 100% en CL
-- Vulnerabilidad defensiva bajo presión alta confirmada por xGA stats de la temporada
-- High-pressing style (Luis Enrique) aumenta la carga física del plantel
+- Defending UCL champions (2024/25) - going for back-to-back titles
+- Year 2 of Luis Enrique's system: players fully automatized in the high-press, lower cognitive load, faster decision-making under fatigue
+- Experience premium: no unknowns about winning the CL - institutional knowledge and better penalty-situation composure (Bar-Eli et al., 2007)
+- Dembélé/Barcola/Gonçalo Ramos trident (not Sergio Ramos - Gonçalo Ramos, Portuguese striker signed from Benfica) at peak output
+- Defensive organization measurably improved from the 2024/25 campaign
+- Motivation: hungry for consecutive titles, a psychologically distinct state from desperation - lower anxiety, higher controlled aggression
 
 ---
 
@@ -113,10 +114,10 @@ La verosimilitud del modelo Dixon-Coles con decaimiento temporal:
 $$\mathcal{L} = \prod_{k} w_k \cdot \tau_{\rho}(x_k, y_k) \cdot \text{Poisson}(x_k|\lambda_k) \cdot \text{Poisson}(y_k|\mu_k)$$
 
 Donde:
-- $\lambda_k = e^{\alpha_i + \delta_j + \gamma}$ — goles esperados del equipo local
-- $\mu_k = e^{\alpha_j + \delta_i}$ — goles esperados del equipo visitante
-- $w_k = e^{-\alpha^* \cdot t_k}$ — peso de decaimiento temporal ($\alpha^* = 0.0100$)
-- $\tau_\rho$ — corrección para marcadores bajos (0-0, 1-0, 0-1, 1-1)
+- $\lambda_k = e^{\alpha_i + \delta_j + \gamma}$ - goles esperados del equipo local
+- $\mu_k = e^{\alpha_j + \delta_i}$ - goles esperados del equipo visitante
+- $w_k = e^{-\alpha^* \cdot t_k}$ - peso de decaimiento temporal ($\alpha^* = 0.0100$)
+- $\tau_\rho$ - corrección para marcadores bajos (0-0, 1-0, 0-1, 1-1)
 
 Con ajuste contextual:
 $$\lambda_{adj} = \lambda \cdot s_{att}^{home} \cdot s_{def}^{away} \cdot e^{m^{home}}$$

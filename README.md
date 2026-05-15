@@ -10,16 +10,16 @@
 
 | Objective | Probability |
 |---|:---:|
-| Arsenal — Premier League Title | **83.71%** |
-| Arsenal — CL Final Win *(incl. ET/Penalties)* | **47.08%** |
-| Arsenal — Historic Double *(PL + CL)* | **39.41%** |
-| Tottenham — Relegation Risk | **16.92%** |
+| Arsenal - Premier League Title | **83.64%** |
+| Arsenal - CL Final Win *(incl. ET/Penalties)* | **48.36%** |
+| Arsenal - Historic Double *(PL + CL)* | **40.45%** |
+| Tottenham - Relegation Risk | **16.91%** |
 
 Full technical analysis: [REPORTE_EJECUTIVO_2526.md](REPORTE_EJECUTIVO_2526.md)
 
 ---
 
-## Champions League Final — Arsenal vs PSG
+## Champions League Final - Arsenal vs PSG
 
 ![CL Final Probabilities](images/cl_final_probabilities.png)
 
@@ -27,8 +27,8 @@ Full technical analysis: [REPORTE_EJECUTIVO_2526.md](REPORTE_EJECUTIVO_2526.md)
 
 | Scenario | Arsenal | Draw | PSG |
 |---|:---:|:---:|:---:|
-| 90 Minutes | 29.3% | 35.6% | 35.1% |
-| **Incl. ET/Penalties** | **47.1%** | — | **52.9%** |
+| 90 Minutes | 30.8% | 35.1% | 34.1% |
+| **Incl. ET/Penalties** | **48.4%** | - | **51.6%** |
 
 ---
 
@@ -42,11 +42,11 @@ Full technical analysis: [REPORTE_EJECUTIVO_2526.md](REPORTE_EJECUTIVO_2526.md)
 
 The statistical engine extends the classic **Dixon & Coles (1997)** methodology with modern enhancements:
 
-1. **Multi-League Time-Decay Log-Likelihood** — Trains simultaneously on PL + Ligue 1 (657 matches). Exponential decay weighting $w_k = e^{-\alpha^* \cdot t_k}$ with $\alpha^* = 0.0100$ (optimized via grid search on held-out validation set).
-2. **Contextual Adjustment Engine** — Bayesian-style priors encoding injuries, fatigue, and motivation. Applied separately per team per competition with explicit scientific justification for every coefficient.
-3. **Neutral Venue Calibration** — CL Final simulated with `home_adv = 0.0` at Puskas Arena.
-4. **Bivariate Poisson Correction (ρ)** — Dixon-Coles τ adjustment for structurally under-dispersed low-scoring matches (0-0, 1-0, 0-1, 1-1).
-5. **Monte Carlo Season Simulator** — 100,000 full-season iterations producing complete position probability distributions.
+1. **Multi-League Time-Decay Log-Likelihood** - Trains simultaneously on PL + Ligue 1 (657 matches). Exponential decay weighting $w_k = e^{-\alpha^* \cdot t_k}$ with $\alpha^* = 0.0100$ (optimized via grid search on held-out validation set).
+2. **Contextual Adjustment Engine** - Bayesian-style priors encoding injuries, fatigue, and motivation. Applied separately per team per competition with explicit scientific justification for every coefficient.
+3. **Neutral Venue Calibration** - CL Final simulated with `home_adv = 0.0` at Puskas Arena.
+4. **Bivariate Poisson Correction (ρ)** - Dixon-Coles τ adjustment for structurally under-dispersed low-scoring matches (0-0, 1-0, 0-1, 1-1).
+5. **Monte Carlo Season Simulator** - 100,000 full-season iterations producing complete position probability distributions.
 
 ---
 
@@ -56,9 +56,9 @@ The statistical engine extends the classic **Dixon & Coles (1997)** methodology 
 |---|---|
 | Schema Validation | Pandera enforced at ingestion for both PL and Ligue 1 |
 | Type Safety | Python 3.12+ with full `mypy` strict mode |
-| Linting & Formatting | `Ruff` — replaces black/flake8/isort |
+| Linting & Formatting | `Ruff` - replaces black/flake8/isort |
 | Test Coverage | `pytest` with ≥80% coverage on core mathematical modules |
-| Dependency Management | `uv` — fast, reproducible, lockfile-enforced |
+| Dependency Management | `uv` - fast, reproducible, lockfile-enforced |
 
 ---
 

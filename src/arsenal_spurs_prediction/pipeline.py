@@ -34,7 +34,7 @@ def load_and_preprocess_data(  # noqa: C901
     logger.info(f"Loading data from {filepath}")
     df = pd.read_csv(filepath)
 
-    # Extract goals from score string like "2–1"
+    # Extract goals from score string like "2-1"
     # Handling potential missing values
     scores = df["score"].str.extract(r"(\d+)[^\d]+(\d+)")
     df["home_goals"] = pd.to_numeric(scores[0])
@@ -81,7 +81,7 @@ def load_and_preprocess_data(  # noqa: C901
 
         # Points from home games
         for _, row in actual_home_games.iterrows():
-            scores = str(row["score"]).split("–")
+            scores = str(row["score"]).split("-")
             if len(scores) == 2:
                 hg, ag = int(scores[0]), int(scores[1])
                 gd += hg - ag
@@ -92,7 +92,7 @@ def load_and_preprocess_data(  # noqa: C901
 
         # Points from away games
         for _, row in actual_away_games.iterrows():
-            scores = str(row["score"]).split("–")
+            scores = str(row["score"]).split("-")
             if len(scores) == 2:
                 hg, ag = int(scores[0]), int(scores[1])
                 gd += ag - hg
@@ -233,7 +233,7 @@ def run_pipeline() -> None:
     df_remaining_probs = pd.DataFrame(remaining_probs)
 
     # -----------------------------------------------------------------------
-    # Champions League Final: Arsenal vs PSG — Neutral Venue (Puskas Arena)
+    # Champions League Final: Arsenal vs PSG - Neutral Venue (Puskas Arena)
     # -----------------------------------------------------------------------
     logger.info("\nPredicting CL Final with full contextual adjustments...")
 
@@ -246,7 +246,7 @@ def run_pipeline() -> None:
     cl_match_ctx = MatchContext(
         home_context=arsenal_cl_ctx,  # Arsenal treated as 'home side'
         away_context=psg_cl_ctx,
-        neutral_venue=True,           # Eliminates home_adv — Puskas Arena
+        neutral_venue=True,           # Eliminates home_adv - Puskas Arena
     )
 
     cl_hw, cl_d, cl_aw = model.match_probabilities(
@@ -286,7 +286,7 @@ def run_pipeline() -> None:
     df_remaining_probs.to_csv("data/processed/remaining_fixtures_probs.csv", index=False)
     cl_final_probs.to_csv("data/processed/cl_final_probs.csv", index=False)
 
-    # Run PL Simulation — pass contexts to simulator via model
+    # Run PL Simulation - pass contexts to simulator via model
     # Contexts are baked into the probability matrices via pre-computed match_matrices
     simulator = MonteCarloSimulator(model=model, n_simulations=100_000)
     final_probs = simulator.run(pl_standings, pl_remaining)
@@ -308,8 +308,8 @@ def run_pipeline() -> None:
         tottenham_rel_prob = float(final_probs.loc["Tottenham Hotspur", rel_cols].sum())
 
     # The Double probability:
-    # P(Double) = P(PL Title) × P(Arsenal lifts CL)
-    # where P(Arsenal lifts CL) = P(Win 90min) + P(Draw 90min) × 0.50 (ET/Pens)
+    # P(Double) = P(PL Title) * P(Arsenal lifts CL)
+    # where P(Arsenal lifts CL) = P(Win 90min) + P(Draw 90min) * 0.50 (ET/Pens)
     double_prob = arsenal_title_prob * p_arsenal_win_full
 
     # -----------------------------------------------------------------------
@@ -319,11 +319,11 @@ def run_pipeline() -> None:
     logger.info(f"\n{sep}")
     logger.info("  PREDICTIVE INTELLIGENCE: SEASON 2025/26 FINAL REPORT")
     logger.info(sep)
-    logger.info(f"  Arsenal — Premier League Title Probability:  {arsenal_title_prob:>7.2%}")
-    logger.info(f"  Arsenal — CL Final Win (incl. ET/Pens):      {p_arsenal_win_full:>7.2%}")
-    logger.info(f"  Arsenal — HISTORIC DOUBLE Probability:       {double_prob:>7.2%}")
+    logger.info(f"  Arsenal - Premier League Title Probability:  {arsenal_title_prob:>7.2%}")
+    logger.info(f"  Arsenal - CL Final Win (incl. ET/Pens):      {p_arsenal_win_full:>7.2%}")
+    logger.info(f"  Arsenal - HISTORIC DOUBLE Probability:       {double_prob:>7.2%}")
     logger.info(sep)
-    logger.info(f"  Tottenham — Relegation Probability:          {tottenham_rel_prob:>7.2%}")
+    logger.info(f"  Tottenham - Relegation Probability:          {tottenham_rel_prob:>7.2%}")
     logger.info(sep)
     logger.info(f"  CL Final: Arsenal {cl_hw:.1%} | Draw {cl_d:.1%} | PSG {cl_aw:.1%} [90min]")
     logger.info(f"  CL Final: Arsenal {p_arsenal_win_full:.1%} | PSG {p_psg_win_full:.1%} [incl. ET]")  # noqa: E501

@@ -208,7 +208,7 @@ class DixonColesModel:
             context:    Optional MatchContext for contextual adjustments.
 
         Returns:
-            Tuple of (home_win_prob, draw_prob, away_win_prob) — sum to 1.0.
+            Tuple of (home_win_prob, draw_prob, away_win_prob) - sum to 1.0.
         """
         matrix = self.predict(home_team, away_team, context=context)
 

@@ -130,7 +130,7 @@ def generate_executive_summary_chart() -> None:
 
     ax.set_xlabel("Probability (%)", color="#cccccc", fontsize=11)
     ax.set_title(
-        "2025/26 Season Predictive Intelligence — Executive Summary",
+        "2025/26 Season Predictive Intelligence - Executive Summary",
         color="white", fontsize=14, fontweight="bold", pad=16
     )
     ax.tick_params(colors="#cccccc")
