@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_and_preprocess_data(
+def load_and_preprocess_data(  # noqa: C901
     filepath: str | Path,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
@@ -31,14 +31,33 @@ def load_and_preprocess_data(
     df["home_goals"] = pd.to_numeric(scores[0])
     df["away_goals"] = pd.to_numeric(scores[1])
 
+    # Parse dates
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Handle Expected Goals (xG) if available, otherwise fallback to actual goals
+    if "home_xg" in df.columns and "away_xg" in df.columns:
+        logger.info("Expected Goals (xG) columns found. Using xG for model training.")
+        df["home_model_goals"] = pd.to_numeric(df["home_xg"])
+        df["away_model_goals"] = pd.to_numeric(df["away_xg"])
+    else:
+        logger.warning(
+            "Expected Goals (xG) not found. Falling back to actual goals for model training."
+        )
+        df["home_model_goals"] = df["home_goals"]
+        df["away_model_goals"] = df["away_goals"]
+
     played_mask = df["home_goals"].notna() & df["away_goals"].notna()
     played_matches = df[played_mask].copy()
     played_matches["home_goals"] = played_matches["home_goals"].astype(int)
     played_matches["away_goals"] = played_matches["away_goals"].astype(int)
 
+    # Use the model goals (either actual or xG) for the model fit
+    played_matches["home_goals"] = played_matches["home_model_goals"]
+    played_matches["away_goals"] = played_matches["away_model_goals"]
+
     unplayed_matches = df[~played_mask].copy()
 
-    # Calculate current standings
+    # Calculate current standings (always use ACTUAL goals for standings)
     standings = []
     teams = set(df["home_team"].dropna()) | set(df["away_team"].dropna())
 
@@ -46,26 +65,32 @@ def load_and_preprocess_data(
         pts = 0
         gd = 0
 
-        home_games = played_matches[played_matches["home_team"] == team]
-        away_games = played_matches[played_matches["away_team"] == team]
+        # Need actual goals for standings, so we re-extract from score string
+        # since we overwrote home_goals with xG for the model
+        actual_home_games = df[played_mask & (df["home_team"] == team)]
+        actual_away_games = df[played_mask & (df["away_team"] == team)]
 
         # Points from home games
-        for _, row in home_games.iterrows():
-            hg, ag = row["home_goals"], row["away_goals"]
-            gd += hg - ag
-            if hg > ag:
-                pts += 3
-            elif hg == ag:
-                pts += 1
+        for _, row in actual_home_games.iterrows():
+            scores = str(row["score"]).split("–")
+            if len(scores) == 2:
+                hg, ag = int(scores[0]), int(scores[1])
+                gd += hg - ag
+                if hg > ag:
+                    pts += 3
+                elif hg == ag:
+                    pts += 1
 
         # Points from away games
-        for _, row in away_games.iterrows():
-            hg, ag = row["home_goals"], row["away_goals"]
-            gd += ag - hg
-            if ag > hg:
-                pts += 3
-            elif ag == hg:
-                pts += 1
+        for _, row in actual_away_games.iterrows():
+            scores = str(row["score"]).split("–")
+            if len(scores) == 2:
+                hg, ag = int(scores[0]), int(scores[1])
+                gd += ag - hg
+                if ag > hg:
+                    pts += 3
+                elif ag == hg:
+                    pts += 1
 
         standings.append({"team": team, "points": pts, "goal_difference": gd})
 
@@ -90,35 +115,87 @@ def run_pipeline() -> None:
     logger.info("Current Bottom 5:")
     logger.info(f"\n{current_standings.tail()}")
 
-    # Fit Dixon-Coles model
+    # Hyperparameter Tuning for Time Decay (alpha)
+    # Use the last 30 matches as a validation set
+    import numpy as np
+
+    played_sorted = played.sort_values("date")
+    val_size = 30
+    if len(played_sorted) > val_size * 2:
+        train_set = played_sorted.iloc[:-val_size]
+        val_set = played_sorted.iloc[-val_size:]
+
+        alphas_to_test = [0.001, 0.003, 0.0065, 0.010, 0.015]
+        best_alpha = 0.0065
+        best_llk = float("-inf")
+
+        logger.info(f"Starting Hyperparameter Tuning for Time Decay Alpha on {len(alphas_to_test)} candidates...")  # noqa: E501
+        for alpha in alphas_to_test:
+            # Train weights
+            max_train_date = train_set["date"].max()
+            train_weights = np.exp(-alpha * (max_train_date - train_set["date"]).dt.days).values
+
+            # Fit model on train
+            temp_model = DixonColesModel()
+            temp_model.fit(train_set, weights=train_weights)
+
+            # Evaluate on val set (pseudo out-of-sample log-likelihood)
+            # We don't apply weights to val set evaluation to ensure comparable likelihoods
+            init_params = np.concatenate(
+                [
+                    [temp_model.home_adv, temp_model.rho],
+                    [temp_model.params.get(f"{t}_att", 0.1) for t in temp_model.teams],
+                    [temp_model.params.get(f"{t}_def", -0.1) for t in temp_model.teams],
+                ]
+            )
+            # Using the _log_likelihood function (returns NEGATIVE llk, so we negate it)
+            val_llk = -temp_model._log_likelihood(init_params, val_set, weights=None)
+
+            logger.info(f"Alpha {alpha:.4f} -> Val LLK: {val_llk:.2f}")
+            if val_llk > best_llk:
+                best_llk = val_llk
+                best_alpha = alpha
+
+        logger.info(f"Optimal Alpha Selected: {best_alpha:.4f}")
+    else:
+        best_alpha = 0.0065
+        logger.warning("Not enough data for tuning. Using default alpha.")
+
+    # Final Fit with best alpha
+    max_date = played["date"].max()
+    delta_days = (max_date - played["date"]).dt.days
+    weights = np.exp(-best_alpha * delta_days).values
+
     model = DixonColesModel()
-    model.fit(played)
-    
+    model.fit(played, weights=weights)
+
     # Export Match Probabilities for Power BI
     remaining_probs = []
     for _, row in remaining.iterrows():
         h, a = row["home_team"], row["away_team"]
         hw, d, aw = model.match_probabilities(h, a)
-        remaining_probs.append({
-            "home_team": h,
-            "away_team": a,
-            "home_win_prob": hw,
-            "draw_prob": d,
-            "away_win_prob": aw
-        })
+        remaining_probs.append(
+            {
+                "home_team": h,
+                "away_team": a,
+                "home_win_prob": hw,
+                "draw_prob": d,
+                "away_win_prob": aw,
+            }
+        )
     df_remaining_probs = pd.DataFrame(remaining_probs)
-    
+
     # Ensure processed dir exists
     Path("data/processed").mkdir(parents=True, exist_ok=True)
-    
+
     # Export for Power BI
     current_standings.to_csv("data/processed/current_standings.csv", index=False)
     df_remaining_probs.to_csv("data/processed/remaining_fixtures_probs.csv", index=False)
-    
+
     # Run Simulation
     simulator = MonteCarloSimulator(model=model, n_simulations=100000)
     final_probs = simulator.run(current_standings, remaining)
-    
+
     # Export probabilities for Power BI
     final_probs.to_csv("data/processed/simulation_probabilities.csv")
 

@@ -1,10 +1,9 @@
+import numpy as np
 import pandas as pd
 import pytest
 
 from arsenal_spurs_prediction.simulation.monte_carlo import MonteCarloSimulator
 
-
-import numpy as np
 
 class DummyModel:
     def predict(self, home_team: str, away_team: str) -> np.ndarray:

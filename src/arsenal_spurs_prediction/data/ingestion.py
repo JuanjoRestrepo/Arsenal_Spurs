@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 import pandas as pd
+import pandera as pa
 import soccerdata as sd
 
 # Configure logging
@@ -22,6 +23,19 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 # Ensure directories exist
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# Define Pandera Schema for FBref Data
+FBrefSchema = pa.DataFrameSchema(  # type: ignore
+    {
+        "date": pa.Column(pa.String, nullable=True),
+        "home_team": pa.Column(pa.String, nullable=False),
+        "away_team": pa.Column(pa.String, nullable=False),
+        "score": pa.Column(pa.String, nullable=True),
+    },
+    index=pa.Index(int),
+    strict=False,  # Allow other columns like xG, attendance, etc.
+)
 
 
 def fetch_fbref_match_history(
@@ -52,6 +66,10 @@ def fetch_fbref_match_history(
 
         # Clean up columns if needed and reset index
         schedule = schedule.reset_index()
+
+        # Validate Schema
+        logger.info("Validating schema with Pandera...")
+        schedule = FBrefSchema.validate(schedule)
 
         # Save raw data
         raw_path = RAW_DATA_DIR / f"fbref_schedule_{seasons}.csv"

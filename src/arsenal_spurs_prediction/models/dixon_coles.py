@@ -38,9 +38,12 @@ class DixonColesModel:
             return 1 - rho
         return 1.0
 
-    def _log_likelihood(self, params: np.ndarray, df: pd.DataFrame) -> float:
+    def _log_likelihood(
+        self, params: np.ndarray, df: pd.DataFrame, weights: np.ndarray | None = None
+    ) -> float:
         """
         Calculate negative log-likelihood for the optimization.
+        If weights are provided (e.g., time decay), they are multiplied with the log-likelihood.
         """
         home_adv = params[0]
         rho = params[1]
@@ -77,12 +80,17 @@ class DixonColesModel:
         tau_values = np.maximum(tau_values, 1e-10)
 
         llk = llk_poisson + np.log(tau_values)
+
+        if weights is not None:
+            llk = llk * weights
+
         return float(-np.sum(llk))
 
-    def fit(self, df: pd.DataFrame) -> None:
+    def fit(self, df: pd.DataFrame, weights: np.ndarray | None = None) -> None:
         """
         Fit the model on historical match data.
         Expected columns: 'home_team', 'away_team', 'home_goals', 'away_goals'
+        Optional: weights for time decay (e.g., np.exp(-alpha * days_elapsed))
         """
         logger.info("Fitting Dixon-Coles model...")
         self.teams = sorted(set(df["home_team"]) | set(df["away_team"]))
@@ -109,7 +117,7 @@ class DixonColesModel:
         res = minimize(
             self._log_likelihood,
             init_params,
-            args=(df,),
+            args=(df, weights),
             method="SLSQP",
             bounds=bounds,
             constraints=constraints,
