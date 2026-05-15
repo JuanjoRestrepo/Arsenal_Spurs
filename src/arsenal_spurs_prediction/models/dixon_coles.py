@@ -2,12 +2,18 @@
 Dixon-Coles Poisson model for football match prediction.
 """
 
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 from scipy.stats import poisson
+
+if TYPE_CHECKING:
+    from arsenal_spurs_prediction.models.context import MatchContext
 
 logger = logging.getLogger(__name__)
 
@@ -137,16 +143,43 @@ class DixonColesModel:
 
         logger.info("Model fitting complete.")
 
-    def predict(self, home_team: str, away_team: str, max_goals: int = 8) -> np.ndarray:
+    def predict(
+        self,
+        home_team: str,
+        away_team: str,
+        max_goals: int = 8,
+        context: MatchContext | None = None,
+    ) -> np.ndarray:
         """
         Predict exact score probabilities for a given matchup.
-        Returns a matrix of shape (max_goals+1, max_goals+1) where
-        matrix[i, j] is the probability of home_team scoring i and away_team scoring j.
+
+        Args:
+            home_team:  Canonical team name for the home side.
+            away_team:  Canonical team name for the away side.
+            max_goals:  Maximum scoreline to consider per team (truncation point).
+            context:    Optional MatchContext encoding injuries, fatigue, and
+                        motivation adjustments for both teams. When provided,
+                        the base expected goal rates (lambda, mu) are scaled
+                        by the effective multipliers before the Poisson grid
+                        is computed.
+
+        Returns:
+            Probability matrix of shape (max_goals+1, max_goals+1) where
+            matrix[i, j] = P(home scores i, away scores j).
         """
-        lambda_ = np.exp(
-            self.params[f"{home_team}_att"] + self.params[f"{away_team}_def"] + self.home_adv
-        )
-        mu = np.exp(self.params[f"{away_team}_att"] + self.params[f"{home_team}_def"])
+        home_adv = 0.0 if (context is not None and context.neutral_venue) else self.home_adv
+
+        # Base expected goals from Dixon-Coles parameters
+        lambda_ = float(np.exp(
+            self.params[f"{home_team}_att"] + self.params[f"{away_team}_def"] + home_adv
+        ))
+        mu = float(np.exp(
+            self.params[f"{away_team}_att"] + self.params[f"{home_team}_def"]
+        ))
+
+        # Apply contextual adjustments if provided
+        if context is not None:
+            lambda_, mu = context.apply(lambda_, mu)
 
         prob_matrix = np.zeros((max_goals + 1, max_goals + 1))
 
@@ -160,14 +193,27 @@ class DixonColesModel:
         prob_matrix = prob_matrix / np.sum(prob_matrix)
         return prob_matrix
 
-    def match_probabilities(self, home_team: str, away_team: str) -> tuple[float, float, float]:
+    def match_probabilities(
+        self,
+        home_team: str,
+        away_team: str,
+        context: MatchContext | None = None,
+    ) -> tuple[float, float, float]:
         """
         Return (Home Win, Draw, Away Win) probabilities.
+
+        Args:
+            home_team:  Canonical home team name.
+            away_team:  Canonical away team name.
+            context:    Optional MatchContext for contextual adjustments.
+
+        Returns:
+            Tuple of (home_win_prob, draw_prob, away_win_prob) — sum to 1.0.
         """
-        matrix = self.predict(home_team, away_team)
+        matrix = self.predict(home_team, away_team, context=context)
 
-        home_win = np.sum(np.tril(matrix, -1))
-        draw = np.sum(np.diag(matrix))
-        away_win = np.sum(np.triu(matrix, 1))
+        home_win = float(np.sum(np.tril(matrix, -1)))
+        draw = float(np.sum(np.diag(matrix)))
+        away_win = float(np.sum(np.triu(matrix, 1)))
 
-        return float(home_win), float(draw), float(away_win)
+        return home_win, draw, away_win
