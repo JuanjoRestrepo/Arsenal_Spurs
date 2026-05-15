@@ -2,13 +2,18 @@
 
 ![Title Probabilities](images/title_probabilities.png)
 
-A production-grade predictive modeling architecture designed to simulate the outcome of the English Premier League 2025/2026 season. Built to the rigorous standards of modern sports data analytics (similar to those used by betting syndicates and club analytic departments), this project leverages a dynamically tuned, time-decayed Dixon-Coles Poisson model alongside strict MLOps principles.
+A production-grade predictive modeling architecture designed to simulate the outcome of the English Premier League and UEFA Champions League 2025/2026 seasons. Built to the rigorous standards of modern sports data analytics, this project leverages a dynamically tuned, multi-league, time-decayed Dixon-Coles Poisson model alongside strict MLOps principles.
+
+## 🏆 2026 Champions League Final Analysis
+The model now supports cross-league team ratings, allowing it to simulate the **UEFA Champions League Final: Arsenal vs Paris Saint-Germain**. Using a neutral-venue calibrated Dixon-Coles model trained on both Premier League and Ligue 1 data, we provide the most accurate probability landscape for the Puskas Arena showdown.
+
+![CL Final Probabilities](images/cl_final_probabilities.png)
 
 ## 🧠 Core Architecture
 
 The statistical engine extends the classic Dixon & Coles (1997) methodology with modern enhancements:
-1. **Time-Decay Log-Likelihood:** Recent form dictates mathematical parameters. A grid-search optimization automatically selects the best half-life decay parameter ($\alpha$) using pseudo-out-of-sample validation to maximize predictive power.
-2. **Expected Goals (xG) Integration:** The model dynamically attempts to fall back on Expected Goals (xG) if available, minimizing the high variance and luck associated with pure goal scoring.
+1. **Multi-League Time-Decay Log-Likelihood:** The engine now ingest and trains on multiple European leagues (PL, Ligue 1) to derive consistent cross-competition team ratings. Recent form dictates mathematical parameters through an exponential decay function ($e^{-\alpha \cdot t}$).
+2. **Neutral Venue Calibration:** Special logic for knockout tournaments (Champions League) that eliminates home field advantage for neutral venue simulations.
 3. **Bivariate Poisson Adjustment:** Low-scoring matches (0-0, 1-0, 0-1, 1-1) are structurally adjusted using the $\rho$ parameter to account for under-dispersion in standard Poisson models.
 
 ## 🛠️ Data Engineering & MLOps

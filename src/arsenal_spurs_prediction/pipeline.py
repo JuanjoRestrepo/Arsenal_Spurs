@@ -102,24 +102,39 @@ def load_and_preprocess_data(  # noqa: C901
 
 
 def run_pipeline() -> None:
-    data_path = Path("data/raw/fbref_schedule_2526.csv")
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}. Please run ingestion.py first.")
+    # Support multiple leagues
+    leagues = ["eng-premier_league", "fra-ligue_1"]
+    all_played = []
+    
+    # Load and preprocess all leagues
+    for league in leagues:
+        data_path = Path(f"data/raw/fbref_schedule_{league}_2526.csv")
+        if not data_path.exists():
+            logger.warning(f"Data file not found for {league}: {data_path}. Skipping.")
+            continue
+            
+        played, remaining, current_standings = load_and_preprocess_data(data_path)
+        all_played.append(played)
+        
+        # We only care about PL standings for the simulation part of PL
+        if league == "eng-premier_league":
+            pl_remaining = remaining
+            pl_standings = current_standings
+
+    if not all_played:
+        logger.error("No training data found. Please run ingestion.py first.")
         return
 
-    played, remaining, current_standings = load_and_preprocess_data(data_path)
-
-    logger.info("Current Top 5:")
-    logger.info(f"\n{current_standings.head()}")
-
-    logger.info("Current Bottom 5:")
-    logger.info(f"\n{current_standings.tail()}")
+    # Combine all played matches for better parameter estimation
+    played_combined = pd.concat(all_played, ignore_index=True)
+    
+    logger.info(f"Training global model on {len(played_combined)} matches...")
 
     # Hyperparameter Tuning for Time Decay (alpha)
     # Use the last 30 matches as a validation set
     import numpy as np
 
-    played_sorted = played.sort_values("date")
+    played_sorted = played_combined.sort_values("date")
     val_size = 30
     if len(played_sorted) > val_size * 2:
         train_set = played_sorted.iloc[:-val_size]
@@ -162,16 +177,16 @@ def run_pipeline() -> None:
         logger.warning("Not enough data for tuning. Using default alpha.")
 
     # Final Fit with best alpha
-    max_date = played["date"].max()
-    delta_days = (max_date - played["date"]).dt.days
+    max_date = played_combined["date"].max()
+    delta_days = (max_date - played_combined["date"]).dt.days
     weights = np.exp(-best_alpha * delta_days).values
 
     model = DixonColesModel()
-    model.fit(played, weights=weights)
+    model.fit(played_combined, weights=weights)
 
-    # Export Match Probabilities for Power BI
+    # Export Match Probabilities for Premier League Power BI
     remaining_probs = []
-    for _, row in remaining.iterrows():
+    for _, row in pl_remaining.iterrows():
         h, a = row["home_team"], row["away_team"]
         hw, d, aw = model.match_probabilities(h, a)
         remaining_probs.append(
@@ -185,16 +200,39 @@ def run_pipeline() -> None:
         )
     df_remaining_probs = pd.DataFrame(remaining_probs)
 
+    # --- NEW: Champions League Final Prediction ---
+    logger.info("Predicting Champions League Final: Arsenal vs Paris Saint-Germain (Neutral)...")
+    # Neutral venue adjustment: home_adv = 0
+    # Temporarily set home_adv to 0 for the prediction
+    original_home_adv = model.home_adv
+    model.home_adv = 0.0
+    
+    cl_hw, cl_d, cl_aw = model.match_probabilities("Arsenal", "Paris Saint-Germain")
+    
+    # Restore original home advantage for PL simulations
+    model.home_adv = original_home_adv
+    
+    cl_final_probs = pd.DataFrame([{
+        "home_team": "Arsenal",
+        "away_team": "Paris Saint-Germain",
+        "arsenal_win": cl_hw,
+        "draw_90min": cl_d,
+        "psg_win": cl_aw,
+        "venue": "Puskas Arena (Neutral)"
+    }])
+    logger.info(f"CL Final Probabilities: Arsenal {cl_hw:.1%}, Draw {cl_d:.1%}, PSG {cl_aw:.1%}")
+
     # Ensure processed dir exists
     Path("data/processed").mkdir(parents=True, exist_ok=True)
 
     # Export for Power BI
-    current_standings.to_csv("data/processed/current_standings.csv", index=False)
+    pl_standings.to_csv("data/processed/current_standings.csv", index=False)
     df_remaining_probs.to_csv("data/processed/remaining_fixtures_probs.csv", index=False)
+    cl_final_probs.to_csv("data/processed/cl_final_probs.csv", index=False)
 
     # Run Simulation
     simulator = MonteCarloSimulator(model=model, n_simulations=100000)
-    final_probs = simulator.run(current_standings, remaining)
+    final_probs = simulator.run(pl_standings, pl_remaining)
 
     # Export probabilities for Power BI
     final_probs.to_csv("data/processed/simulation_probabilities.csv")

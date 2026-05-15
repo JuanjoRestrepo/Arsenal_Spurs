@@ -62,5 +62,35 @@ def generate_title_probability_chart() -> None:
     plt.savefig("images/title_probabilities.png", dpi=300, bbox_inches="tight")
     print("Generated images/title_probabilities.png")
 
+def generate_cl_final_chart() -> None:
+    # Load CL Final probabilities
+    cl_df = pd.read_csv("data/processed/cl_final_probs.csv")
+    probs = [cl_df["arsenal_win"].iloc[0], cl_df["draw_90min"].iloc[0], cl_df["psg_win"].iloc[0]]
+    labels = ["Arsenal Win", "Draw (90m)", "PSG Win"]
+    colors = ["#EF0107", "#777777", "#004170"]  # Arsenal Red, Neutral Gray, PSG Blue
+    
+    fig, ax = plt.subplots(figsize=(8, 8))
+    
+    # Donut chart
+    wedges, texts, autotexts = ax.pie(
+        probs, 
+        labels=labels, 
+        autopct='%1.1f%%', 
+        startangle=140, 
+        colors=colors,
+        pctdistance=0.85,
+        textprops={'fontsize': 12, 'fontweight': 'bold'}
+    )
+    
+    # Draw circle in center
+    centre_circle = plt.Circle((0,0), 0.70, fc='white')
+    fig.gca().add_artist(centre_circle)
+    
+    ax.set_title("UEFA Champions League Final 2026 Probabilities\n(90 Minutes)", fontsize=16, fontweight="bold")
+    
+    plt.savefig("images/cl_final_probabilities.png", dpi=300, bbox_inches="tight")
+    print("Generated images/cl_final_probabilities.png")
+
 if __name__ == "__main__":
     generate_title_probability_chart()
+    generate_cl_final_chart()
