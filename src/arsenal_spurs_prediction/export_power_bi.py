@@ -135,11 +135,14 @@ class PowerBIExporter:
             fixtures_df: Remaining fixtures dataframe containing 'date' strings.
         """
         logger.info("Building Dim_Calendar table...")
-        dates = pd.to_datetime(fixtures_df["date"], errors="coerce").dropna().unique()
-
-        # Add key dates like Champions League Final (May 30, 2026)
-        additional_dates = [pd.to_datetime("2026-05-30")]
-        all_dates = sorted(list(dates) + additional_dates)
+        dates_parsed = pd.to_datetime(fixtures_df["date"], errors="coerce").dropna()
+        min_date = dates_parsed.min()
+        if pd.isnull(min_date):
+            min_date = pd.to_datetime("2025-08-15")  # Fallback to season start
+            
+        max_date = pd.to_datetime("2026-05-30")  # UCL Final Date
+        
+        all_dates = pd.date_range(start=min_date, end=max_date, freq="D")
 
         calendar_data = []
         for dt in all_dates:
@@ -156,7 +159,7 @@ class PowerBIExporter:
 
         calendar_df = pd.DataFrame(calendar_data)
         calendar_df.to_csv(POWERBI_DIR / "Dim_Calendar.csv", index=False)
-        logger.info(f"Dim_Calendar.csv exported with {len(calendar_df)} entries.")
+        logger.info(f"Dim_Calendar.csv exported with {len(calendar_df)} entries (continuous range).")
 
     def build_fact_standings(self, standings_df: pd.DataFrame) -> None:
         """
