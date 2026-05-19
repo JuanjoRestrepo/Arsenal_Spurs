@@ -81,25 +81,23 @@ def load_and_preprocess_data(  # noqa: C901
 
         # Points from home games
         for _, row in actual_home_games.iterrows():
-            scores = str(row["score"]).split("-")
-            if len(scores) == 2:
-                hg, ag = int(scores[0]), int(scores[1])
-                gd += hg - ag
-                if hg > ag:
-                    pts += 3
-                elif hg == ag:
-                    pts += 1
+            hg = int(row["home_goals"])
+            ag = int(row["away_goals"])
+            gd += hg - ag
+            if hg > ag:
+                pts += 3
+            elif hg == ag:
+                pts += 1
 
         # Points from away games
         for _, row in actual_away_games.iterrows():
-            scores = str(row["score"]).split("-")
-            if len(scores) == 2:
-                hg, ag = int(scores[0]), int(scores[1])
-                gd += ag - hg
-                if ag > hg:
-                    pts += 3
-                elif ag == hg:
-                    pts += 1
+            hg = int(row["home_goals"])
+            ag = int(row["away_goals"])
+            gd += ag - hg
+            if ag > hg:
+                pts += 3
+            elif ag == hg:
+                pts += 1
 
         standings.append({"team": team, "points": pts, "goal_difference": gd})
 

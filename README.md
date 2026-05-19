@@ -10,10 +10,10 @@
 
 | Objective | Probability |
 |---|:---:|
-| Arsenal - Premier League Title | **83.64%** |
-| Arsenal - CL Final Win *(incl. ET/Penalties)* | **48.36%** |
-| Arsenal - Historic Double *(PL + CL)* | **40.45%** |
-| Tottenham - Relegation Risk | **16.91%** |
+| Arsenal - Premier League Title | **0.72%** |
+| Arsenal - CL Final Win *(incl. ET/Penalties)* | **50.51%** |
+| Arsenal - Historic Double *(PL + CL)* | **0.36%** |
+| Tottenham - Relegation Risk | **17.20%** |
 
 Full technical analysis: [REPORTE_EJECUTIVO_2526.md](REPORTE_EJECUTIVO_2526.md)
 
@@ -27,8 +27,8 @@ Full technical analysis: [REPORTE_EJECUTIVO_2526.md](REPORTE_EJECUTIVO_2526.md)
 
 | Scenario | Arsenal | Draw | PSG |
 |---|:---:|:---:|:---:|
-| 90 Minutes | 30.8% | 35.1% | 34.1% |
-| **Incl. ET/Penalties** | **48.4%** | - | **51.6%** |
+| 90 Minutes | 33.7% | 33.6% | 32.7% |
+| **Incl. ET/Penalties** | **50.5%** | - | **49.5%** |
 
 ---
 

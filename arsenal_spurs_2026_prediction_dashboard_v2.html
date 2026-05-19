@@ -75,14 +75,14 @@
         <div class="obtn-grp">
           <button class="obtn aw" onclick="setO('a1','W',this)">W 86%</button>
           <button class="obtn" onclick="setO('a1','D',this)">D 10%</button>
-          <button class="obtn" onclick="setO('a1','L',this)">L 2%</button>
+          <button class="obtn" onclick="setO('a1','L',this)">L 4%</button>
         </div>
       </div>
       <div class="fix-row">
         <div><p class="fix-lbl">vs Crystal Palace</p><p class="fix-sub">Away · May 24</p></div>
         <div class="obtn-grp">
-          <button class="obtn aw" onclick="setO('a2','W',this)">W 59%</button>
-          <button class="obtn" onclick="setO('a2','D',this)">D 28%</button>
+          <button class="obtn aw" onclick="setO('a2','W',this)">W 68%</button>
+          <button class="obtn" onclick="setO('a2','D',this)">D 27%</button>
           <button class="obtn" onclick="setO('a2','L',this)">L 12%</button>
         </div>
       </div>
@@ -92,15 +92,15 @@
       <div class="fix-row">
         <div><p class="fix-lbl">vs Bournemouth</p><p class="fix-sub">Away · May 19</p></div>
         <div class="obtn-grp">
-          <button class="obtn aw" onclick="setO('m1','W',this)">W 55%</button>
+          <button class="obtn aw" onclick="setO('m1','W',this)">W 53%</button>
           <button class="obtn" onclick="setO('m1','D',this)">D 24%</button>
-          <button class="obtn" onclick="setO('m1','L',this)">L 20%</button>
+          <button class="obtn" onclick="setO('m1','L',this)">L 21%</button>
         </div>
       </div>
       <div class="fix-row">
         <div><p class="fix-lbl">vs Aston Villa</p><p class="fix-sub">Home · May 24</p></div>
         <div class="obtn-grp">
-          <button class="obtn aw" onclick="setO('m2','W',this)">W 66%</button>
+          <button class="obtn aw" onclick="setO('m2','W',this)">W 60%</button>
           <button class="obtn" onclick="setO('m2','D',this)">D 22%</button>
           <button class="obtn" onclick="setO('m2','L',this)">L 18%</button>
         </div>
@@ -357,10 +357,10 @@ function renderMatrix(spPts){
 
 function runMC(){
   const N=100000;
-  const AP=[[0.865, 0.108], [0.598, 0.28]];
-  const MP=[[0.551, 0.248], [0.666, 0.22]];
-  const SP=[[0.211, 0.26], [0.349, 0.31]];
-  const WP=[[0.2, 0.251], [0.338, 0.283]];
+  const AP=[[0.86, 0.1], [0.601, 0.274]];
+  const MP=[[0.538, 0.248], [0.689, 0.196]];
+  const SP=[[0.25, 0.27], [0.386, 0.293]];
+  const WP=[[0.4, 0.25], [0.314, 0.28]];
   let arsW=0,mciW=0,drW=0,relr=0;
   for(let i=0;i<N;i++){
     let a=79,m=77,sp=38,wh=36;

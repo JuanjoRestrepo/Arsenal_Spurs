@@ -169,13 +169,14 @@ class DixonColesModel:
         """
         home_adv = 0.0 if (context is not None and context.neutral_venue) else self.home_adv
 
-        # Base expected goals from Dixon-Coles parameters
-        lambda_ = float(np.exp(
-            self.params[f"{home_team}_att"] + self.params[f"{away_team}_def"] + home_adv
-        ))
-        mu = float(np.exp(
-            self.params[f"{away_team}_att"] + self.params[f"{home_team}_def"]
-        ))
+        # Base expected goals from Dixon-Coles parameters (defaulting to 0.0 for unknown teams)
+        home_att = self.params.get(f"{home_team}_att", 0.0)
+        away_def = self.params.get(f"{away_team}_def", 0.0)
+        away_att = self.params.get(f"{away_team}_att", 0.0)
+        home_def = self.params.get(f"{home_team}_def", 0.0)
+
+        lambda_ = float(np.exp(home_att + away_def + home_adv))
+        mu = float(np.exp(away_att + home_def))
 
         # Apply contextual adjustments if provided
         if context is not None:

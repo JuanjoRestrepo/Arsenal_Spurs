@@ -8,13 +8,13 @@
 
 | Objetivo | Probabilidad |
 |---|:---:|
-| Arsenal - Premier League Title | **83.64%** |
-| Arsenal - CL Final Win *(incl. ET/Penales)* | **48.36%** |
-| Arsenal - Doblete Histórico *(PL + CL)* | **40.45%** |
-| Tottenham - Riesgo de Descenso | **16.91%** |
+| Arsenal - Premier League Title | **0.72%** |
+| Arsenal - CL Final Win *(incl. ET/Penales)* | **50.51%** |
+| Arsenal - Doblete Histórico *(PL + CL)* | **0.36%** |
+| Tottenham - Riesgo de Descenso | **17.20%** |
 
 > [!IMPORTANT]
-> El doblete es el evento más difícil de cuantificar en el fútbol moderno. Una probabilidad del **40.45%** representa uno de los resultados más extraordinarios que un modelo estadístico puede proyectar para un club en la era moderna - comparable a los dobles del Manchester City (2018/19) y Chelsea (2009/10).
+> El doblete es el evento más difícil de cuantificar en el fútbol moderno. Una probabilidad del **0.36%** representa el escenario realista actual dadas las posiciones de la tabla al final de la temporada.
 
 ---
 
@@ -23,8 +23,8 @@
 
 | Escenario | Arsenal | Empate | PSG |
 |---|:---:|:---:|:---:|
-| **90 Minutos** | 30.8% | 35.1% | 34.1% |
-| **Incluyendo ET/Penales** | **48.4%** | - | **51.6%** |
+| **90 Minutos** | 33.7% | 33.6% | 32.7% |
+| **Incluyendo ET/Penales** | **50.5%** | - | **49.5%** |
 
 > [!NOTE]
 > La alta probabilidad de empate a 90 minutos (35.6%) es estadísticamente coherente con finales de alta presión donde ambos equipos juegan con cautela táctica. La proyección de ET/Penales asume un reparto 50/50, consistente con la literatura de sports analytics sobre penales en finales (Bar-Eli et al., 2007).
