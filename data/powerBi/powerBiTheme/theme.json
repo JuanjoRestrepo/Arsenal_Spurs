@@ -1,0 +1,22 @@
+{
+  "name": "Football Simulation Analytics",
+  "dataColors": [
+    "#E24B4A", 
+    "#7F77DD", 
+    "#004170", 
+    "#E74C3C", 
+    "#2ECC71", 
+    "#BDC3C7", 
+    "#378ADD", 
+    "#95A5A6"
+  ],
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+        "border": [{ "show": true, "color": { "solid": { "color": "#E0E0E0" } }, "radius": 12 }],
+        "dropShadow": [{ "show": true, "color": { "solid": { "color": "#000000" } }, "transparency": 90, "preset": "BottomRight" }]
+      }
+    }
+  }
+}
